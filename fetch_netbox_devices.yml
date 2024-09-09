@@ -2,7 +2,8 @@
 - name: Fetch devices from NetBox and save to local HTML file
   hosts: localhost
   gather_facts: no
-
+  collections: 
+    - ansible.builtin
   vars:
     netbox_url: "https://dada5870.cloud.netboxapp.com/"
     netbox_token: "2b36ac35df202329a9e1ecaa85fbd5a17f74fb21"
