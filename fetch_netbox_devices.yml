@@ -1,0 +1,37 @@
+---
+- name: Fetch devices from NetBox and save to local HTML file
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    netbox_url: "https://mnqh6527.cloud.netboxapp.com/"
+    netbox_token: "7e1c591e544353bedaeba2fdca5309ff16dfe268"
+    output_file: "/home/user1/reports/devices.html"
+
+  tasks:
+    - name: Ensure the /home/user1/reports directory exists
+      file:
+        path: /home/user1/reports
+        state: directory
+        mode: '0755'
+
+    - name: Fetch devices from NetBox
+      uri:
+        url: "{{ netbox_url }}api/dcim/devices/"
+        method: GET
+        headers:
+          Authorization: "Token {{ netbox_token }}"
+        return_content: yes
+      register: netbox_response
+
+    - name: Save NetBox devices to a JSON file
+      copy:
+        content: "{{ netbox_response.content }}"
+        dest: "/tmp/netbox_devices.json"
+
+    - name: Convert NetBox devices JSON to HTML
+      template:
+        src: templates/netbox_devices.html.j2
+        dest: "{{ output_file }}"
+      vars:
+        devices: "{{ netbox_response.json.results }}"
